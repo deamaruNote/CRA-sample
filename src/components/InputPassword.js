@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 function InputPassword(props) {
-    const { name, id, input, onChange, valcheck = 0 } = props;
+    const { name, id, input, onChange, valcheck = 0, onBlur } = props;
     const [val, setVal] = useState(input ? true : false); // Input
     const [open, setOpen] = useState(false);
     const [checkword, setCheckword] = useState('var(--grey)'); // 驗證密碼位數
@@ -42,6 +42,7 @@ function InputPassword(props) {
                         name={id}
                         id={id}
                         value={input}
+                        onBlur={onBlur}
                         onChange={handleChange}
                     />
                     <span data-name={name}></span>

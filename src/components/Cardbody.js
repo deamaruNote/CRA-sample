@@ -11,21 +11,41 @@ function Cardbody(props) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [account, setAccount] = useState(false);
-    // Verify(red border-style)
+    // Touch
+    const [touched, setTouched] = useState({
+        firstName: false,
+        lastName: false,
+        email: false,
+        password: false,
+    });
     const [valcheck, setValcheck] = useState({
         firstname: 0,
         lastname: 0,
         email: 0,
         password: 0,
-        checktype: 1,
     });
     // Danger-Hint(span display-style)
     const [hint, setHint] = useState({
         require: 0,
-        password: 0,
     });
+    // ==================================== //
+    // Verify(red border-style)
+    const handleBlur = (e) => {
+        const { name } = e.target;
+        setTouched({ ...touched, [name]: true });
+        handleValidate();
+    };
+    const handleValidate = () => {
+        // border-error
+        setValcheck((prevFormData) => ({
+            ...prevFormData,
+            firstname: firstname === '' ? 1 : 0,
+            lastname: lastname === '' ? 1 : 0,
+            email: /^\S+@\S+\.\S+$/.test(email) ? 0 : 1,
+        }));
+    };
 
-    // Submit Formdata to Pre-Data
+    // 點擊SUBMIT
     const onSubmit = () => {
         let new_formdata = {
             firstname: firstname,
@@ -38,33 +58,31 @@ function Cardbody(props) {
         //傳回資料
         handleChange(new_formdata);
 
-        // border-error
-        setValcheck((prevFormData) => ({
-            ...prevFormData,
-            firstname: firstname === '' ? 1 : 0,
-            lastname: lastname === '' ? 1 : 0,
-            email: email === '' ? 1 : 0,
-        }));
-        // password
-        setHint(() => ({
-            require: Object.values(valcheck).every(it => it === 0) ? 0 : 1,
-            password: 1,
-        }));
         if ((password).length >= 8 && /\d/.test(password)) {
             setValcheck((prevFormData) => ({
                 ...prevFormData,
-                email: 1,
-            }));
-            setHint((preHint) => ({
-                ...preHint,
                 password: 0,
-            }))
+            }));
         } else {
             setValcheck((prevFormData) => ({
                 ...prevFormData,
                 password: 1,
             }));
         };
+        // 例外處理
+        setTouched({
+            firstName: true,
+            lastName: true,
+            email: true,
+            password: true,
+        });
+        handleValidate();
+        setHint(() => ({
+            require: Object.values(valcheck).every(it => it === 0) ? 0 : 1,
+        }));
+        if(Object.values(valcheck).every(it => it === 0)){
+            alert("OK!")
+        }
     };
 
     return (
@@ -115,11 +133,15 @@ function Cardbody(props) {
                             id="firstName" type="text"
                             value={firstname}
                             valcheck={valcheck.firstname}
+                            touched={touched.firstName}
+                            onBlur={handleBlur}
                             onChange={(event) => setFirstname(event.target.value)} />
                         <Input name="Last Name"
                             id="lastName" type="text"
                             value={lastname}
                             valcheck={valcheck.lastname}
+                            touched={touched.lastName}
+                            onBlur={handleBlur}
                             onChange={(event) => setLastname(event.target.value)} />
                     </div>
                     <div className="row col">
@@ -127,6 +149,8 @@ function Cardbody(props) {
                             id="email" type="email"
                             value={email}
                             valcheck={valcheck.email}
+                            touched={touched.email}
+                            onBlur={handleBlur}
                             onChange={(event) => setEmail(event.target.value)} />
                     </div>
                     {/* 錯誤提示文字 */}
@@ -134,6 +158,8 @@ function Cardbody(props) {
                         id="password"
                         value={password}
                         valcheck={valcheck.password}
+                        touched={touched.password}
+                        onBlur={handleBlur}
                         onChange={(event) => setPassword(event.target.value)} />
                     <label htmlFor="account" className="account">
                         <input type="checkbox" className="input-check"
